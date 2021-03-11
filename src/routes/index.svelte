@@ -1,5 +1,17 @@
+<script context="module">
+	export async function preload(page, session) {
+		const res = await this.fetch(`api/v1/spreadsheets`);
+		const spreadsheets = await res.json();
+
+		return { spreadsheets };
+	}
+</script>
+
 <script>
 	import successkid from 'images/successkid.jpg';
+	import { Button, Col, Row, ListGroup, ListGroupItem } from 'sveltestrap/src';
+
+	export let spreadsheets;
 </script>
 
 <style>
@@ -37,14 +49,23 @@
 </style>
 
 <svelte:head>
-	<title>Sapper project template</title>
+	<title>Spreadsheets</title>
 </svelte:head>
 
-<h1>Great success!</h1>
+<Row>
+	<Col>
+		<Button>Create New Spreadsheet</Button>
+	</Col>
+</Row>
 
-<figure>
-	<img alt="Success Kid" src="{successkid}">
-	<figcaption>Have fun with Sapper!</figcaption>
-</figure>
-
-<p><strong>Try editing this file (src/routes/index.svelte) to test live reloading.</strong></p>
+<Row>
+	<Col>
+		<ListGroup>
+			{#each spreadsheets as spreadsheet}
+			<ListGroupItem>
+				{spreadsheet.name}
+			</ListGroupItem>
+			{/each}
+		</ListGroup>
+	</Col>
+</Row>
