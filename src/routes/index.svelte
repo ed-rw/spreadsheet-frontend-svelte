@@ -1,17 +1,38 @@
 <script context="module">
 	export async function preload(page, session) {
-		const res = await this.fetch(`api/v1/spreadsheets`);
-		const spreadsheets = await res.json();
+		const createSpreadSheetResp = await this.fetch(`api/v1/spreadsheets`);
+		const spreadsheets = await createSpreadSheetResp.json();
 
 		return { spreadsheets };
 	}
 </script>
 
-<script>
+<script lang="ts">
 	import successkid from 'images/successkid.jpg';
-	import { Button, Col, Row, ListGroup, ListGroupItem } from 'sveltestrap/src';
+	import { Button, Col, Row, ListGroup, ListGroupItem, Input } from 'sveltestrap/src';
 
 	export let spreadsheets;
+	export let newSpreadsheetName = '';
+
+	async function createSpreadsheet() {
+
+		const createSpreadSheetResp = await fetch('/api/v1/spreadsheets', {
+			method: 'POST',
+			headers: {'Content-Type': 'application/json'},
+			body: JSON.stringify({
+				'name': newSpreadsheetName
+			})
+		});
+
+		// Fetch body, is this needed?
+		await createSpreadSheetResp.json();
+
+		newSpreadsheetName = '';
+
+		// Reload spreadsheets data
+		const reloadSpreadsheetsResp = await fetch(`/api/v1/spreadsheets`);
+		spreadsheets = await reloadSpreadsheetsResp.json();
+	}
 </script>
 
 <style>
@@ -54,11 +75,14 @@
 
 <Row>
 	<Col>
-		<Button>Create New Spreadsheet</Button>
+		<Input type="text" bind:value={newSpreadsheetName} placeholder="spreadsheet name" />
+	</Col>
+	<Col>
+		<Button color="primary" disabled={!newSpreadsheetName} on:click="{createSpreadsheet}">Create New Spreadsheet</Button>
 	</Col>
 </Row>
 
-<Row>
+<Row style="padding-top: 50px">
 	<Col>
 		<ListGroup>
 			{#each spreadsheets as spreadsheet}
