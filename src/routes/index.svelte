@@ -1,28 +1,24 @@
-<script context="module">
+<script context="module" lang="ts">
+	import { getSpreadsheets, createSpreadsheet } from './_utils/backend';
+	import type { Spreadsheet } from './_utisl/backend';
+
 	export async function preload(page, session) {
-		const createSpreadSheetResp = await this.fetch(`api/v1/spreadsheets`);
-		const spreadsheets = await createSpreadSheetResp.json();
+		const getSpreadSheetsResp = await getSpreadsheets(this.fetch);
+		const spreadsheets: Spreadsheet[] = await getSpreadSheetsResp.json();
 
 		return { spreadsheets };
 	}
 </script>
 
 <script lang="ts">
-	import successkid from 'images/successkid.jpg';
 	import { Button, Col, Row, ListGroup, ListGroupItem, Input } from 'sveltestrap/src';
 
-	export let spreadsheets;
+	export let spreadsheets: Spreadsheet[];
 	export let newSpreadsheetName = '';
 
-	async function createSpreadsheet() {
+	async function newSpreadsheet() {
 
-		const createSpreadSheetResp = await fetch('/api/v1/spreadsheets', {
-			method: 'POST',
-			headers: {'Content-Type': 'application/json'},
-			body: JSON.stringify({
-				'name': newSpreadsheetName
-			})
-		});
+		const createSpreadSheetResp = await createSpreadsheet(fetch, newSpreadsheetName);
 
 		// Fetch body, is this needed?
 		await createSpreadSheetResp.json();
@@ -30,44 +26,11 @@
 		newSpreadsheetName = '';
 
 		// Reload spreadsheets data
-		const reloadSpreadsheetsResp = await fetch(`/api/v1/spreadsheets`);
+		const reloadSpreadsheetsResp = await getSpreadsheets(fetch);
 		spreadsheets = await reloadSpreadsheetsResp.json();
 	}
 </script>
 
-<style>
-	h1, figure, p {
-		text-align: center;
-		margin: 0 auto;
-	}
-
-	h1 {
-		font-size: 2.8em;
-		text-transform: uppercase;
-		font-weight: 700;
-		margin: 0 0 0.5em 0;
-	}
-
-	figure {
-		margin: 0 0 1em 0;
-	}
-
-	img {
-		width: 100%;
-		max-width: 400px;
-		margin: 0 0 1em 0;
-	}
-
-	p {
-		margin: 1em auto;
-	}
-
-	@media (min-width: 480px) {
-		h1 {
-			font-size: 4em;
-		}
-	}
-</style>
 
 <svelte:head>
 	<title>Spreadsheets</title>
@@ -78,7 +41,8 @@
 		<Input type="text" bind:value={newSpreadsheetName} placeholder="spreadsheet name" />
 	</Col>
 	<Col>
-		<Button color="primary" disabled={!newSpreadsheetName} on:click="{createSpreadsheet}">Create New Spreadsheet</Button>
+		<Button color="primary" disabled={!newSpreadsheetName}
+				on:click="{newSpreadsheet}">Create New Spreadsheet</Button>
 	</Col>
 </Row>
 
@@ -87,7 +51,7 @@
 		<ListGroup>
 			{#each spreadsheets as spreadsheet}
 			<ListGroupItem>
-				{spreadsheet.name}
+				<a href="spreadsheets/{spreadsheet.id}">{spreadsheet.name}</a>
 			</ListGroupItem>
 			{/each}
 		</ListGroup>
