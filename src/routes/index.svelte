@@ -1,6 +1,6 @@
 <script context="module" lang="ts">
 	import { getSpreadsheets, createSpreadsheet } from './_utils/backend';
-	import type { Spreadsheet } from './_utisl/backend';
+	import type { Spreadsheet } from './_utils/backend';
 
 	export async function preload(page, session) {
 		const getSpreadSheetsResp = await getSpreadsheets(this.fetch);
