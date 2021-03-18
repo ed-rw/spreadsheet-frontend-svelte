@@ -4,12 +4,14 @@ export interface Spreadsheet {
     id: string
 }
 
+export interface SpreadsheetCellData {
+    type: string,
+    value: string
+}
+
 export interface SpreadsheetCell {
     name: string,
-    data: {
-        type: string,
-        value: string
-    }
+    data: SpreadsheetCellData
 }
 
 export function getSpreadsheets(
