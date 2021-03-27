@@ -1,24 +1,23 @@
-<script context="module" lang="ts">
-	import { getSpreadsheets, createSpreadsheet } from './_utils/backend';
-	import type { Spreadsheet } from './_utils/backend';
+<script context="module">
+	import { getSpreadsheets, createSpreadsheet } from '$lib/api';
 
-	export async function preload(page, session) {
-		const getSpreadSheetsResp = await getSpreadsheets(this.fetch);
-		const spreadsheets: Spreadsheet[] = await getSpreadSheetsResp.json();
+	export async function load({ page, fetch, session, context }) {
+		const getSpreadSheetsResp = await getSpreadsheets();
+		const spreadsheets = await getSpreadSheetsResp.json();
 
-		return { spreadsheets };
+		return { props: { spreadsheets } };
 	}
 </script>
 
-<script lang="ts">
+<script>
 	import { Button, Col, Row, ListGroup, ListGroupItem, Input } from 'sveltestrap/src';
 
-	export let spreadsheets: Spreadsheet[];
+	export let spreadsheets;
 	export let newSpreadsheetName = '';
 
 	async function newSpreadsheet() {
 
-		const createSpreadSheetResp = await createSpreadsheet(fetch, newSpreadsheetName);
+		const createSpreadSheetResp = await createSpreadsheet(newSpreadsheetName);
 
 		// Fetch body, is this needed?
 		await createSpreadSheetResp.json();
@@ -26,7 +25,7 @@
 		newSpreadsheetName = '';
 
 		// Reload spreadsheets data
-		const reloadSpreadsheetsResp = await getSpreadsheets(fetch);
+		const reloadSpreadsheetsResp = await getSpreadsheets();
 		spreadsheets = await reloadSpreadsheetsResp.json();
 	}
 </script>

@@ -1,46 +1,45 @@
-<script context="module" lang="ts">
-    import { getSpreadsheet, getSpreadsheetCells } from '../_utils/backend';
-    import { intToCol } from '../_utils/helpers';
-    import type { Spreadsheet, SpreadsheetCell, SpreadsheetCellData } from '../_utils/backend';
+<script context="module">
+    import { getSpreadsheet, getSpreadsheetCells } from '$lib/api';
+    import { intToCol } from '$lib/helpers';
 
-    export async function preload(page, session) {
+    export async function load({ page, fetch, session, context }) {
 
         // TODO: should probably allow limiting the range of cells initially
         // retrieved
         const [getSpreadsheetResp, getSpreadsheetCellsResp] = await Promise.all(
-            [getSpreadsheet(this.fetch, page.params.spreadsheetId),
-             getSpreadsheetCells(this.fetch, page.params.spreadsheetId)]
+            [getSpreadsheet(page.params.spreadsheetId),
+             getSpreadsheetCells(page.params.spreadsheetId)]
         );
 
-        const spreadsheet: Spreadsheet = await getSpreadsheetResp.json();
-        const spreadsheetCellsList: SpreadsheetCell[] = await getSpreadsheetCellsResp.json();
+        const spreadsheet = await getSpreadsheetResp.json();
+        const spreadsheetCellsList = await getSpreadsheetCellsResp.json();
 
-        const spreadsheetCells: Map<string, SpreadsheetCellData> = spreadsheetCellsList.reduce(
+        const spreadsheetCells= spreadsheetCellsList.reduce(
             (acc, e) => acc.set(e.name, e.data),
             new Map()
         );
 
-        return { spreadsheet, spreadsheetCells };
+        return { props: { spreadsheet, spreadsheetCells } };
     }
 </script>
 
-<script lang="ts">
-import { Col, Row, Table } from 'sveltestrap/src';
-    export let spreadsheet: Spreadsheet;
-    export let spreadsheetCells: Map<string, SpreadsheetCellData>;
+<script>
+    import { Col, Row, Table } from 'sveltestrap';
+    export let spreadsheet;
+    export let spreadsheetCells;
 
     export let colStart = 1; // Columnns are one based, but want one for row
     export let colEnd = 10;
     export let rowStart = 1; // Rows are one based
     export let rowEnd = 10;
 
-    let emptyCell: SpreadsheetCellData = {value: "", type: "empty"}
+    let emptyCell = {value: "", type: "empty"}
 
-    export function getCellData(colDisplayNdx: integer, rowDisplayNdx: integer): SpreadsheetCellData {
+    export function getCellData(colDisplayNdx, rowDisplayNdx) {
         let col = intToCol(colStart + colDisplayNdx);
         let row = rowStart + rowDisplayNdx;
 
-        return spreadsheetCells.get(col+row) || emptyCell;
+        return spreadsheetCells.get(col + row) || emptyCell;
     }
 
 </script>
