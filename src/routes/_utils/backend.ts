@@ -43,3 +43,14 @@ export function getSpreadsheetCells(
 ) {
     return fetch(`api/v1/spreadsheets/${spreadsheetId}/cells`);
 }
+
+export function updateCell(
+    fetch: (url: string, options?: any)  => any,
+    spreadsheetId: string, cellName: string, data: SpreadsheetCellData
+) {
+    return fetch(`api/v1/spreadsheets/${spreadsheetId}/cells/${cellName}`, {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+    })
+}

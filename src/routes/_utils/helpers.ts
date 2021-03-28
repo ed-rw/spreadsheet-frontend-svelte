@@ -1,5 +1,5 @@
 
-export function intToCol(colNdx: integer): string | null {
+export function intToCol(colNdx: number): string | null {
     if (colNdx == 0) {
         return null;
     }

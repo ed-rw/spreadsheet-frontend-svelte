@@ -25,7 +25,9 @@
 </script>
 
 <script lang="ts">
-import { Col, Row, Table } from 'sveltestrap/src';
+    import { Col, Row, Table } from 'sveltestrap/src';
+    import Cell from '../../components/Cell.svelte';
+    import { updateCell } from '../_utils/backend';
     export let spreadsheet: Spreadsheet;
     export let spreadsheetCells: Map<string, SpreadsheetCellData>;
 
@@ -33,14 +35,30 @@ import { Col, Row, Table } from 'sveltestrap/src';
     export let colEnd = 10;
     export let rowStart = 1; // Rows are one based
     export let rowEnd = 10;
+    let currentInputCell = null;
 
     let emptyCell: SpreadsheetCellData = {value: "", type: "empty"}
 
-    export function getCellData(colDisplayNdx: integer, rowDisplayNdx: integer): SpreadsheetCellData {
+    export function getCellName(colDisplayNdx: integer, rowDisplayNdx: integer): string {
         let col = intToCol(colStart + colDisplayNdx);
         let row = rowStart + rowDisplayNdx;
+        return col + row;
+    }
 
-        return spreadsheetCells.get(col+row) || emptyCell;
+    export function getCellData(cellName): SpreadsheetCellData {
+        return ;
+    }
+
+    export function updateCellCallback(event) {
+        spreadsheetCells.set(event.detail.cellName, event.detail.cellData);
+        // This makes the statement above reactive, it tells svelte that
+        // anywhere spreadsheetCells has been used needs to be recomputed
+        // it does cause all Cell components to be updated, which is not
+        // as efficient as it could be
+        spreadsheetCells = spreadsheetCells;
+        updateCell(fetch, spreadsheet.id, event.detail.cellName,
+                   event.detail.cellData)
+            .then(() => console.log("cell updated"));
     }
 
 </script>
@@ -65,7 +83,12 @@ import { Col, Row, Table } from 'sveltestrap/src';
             <tr>
                 <td>{rowStart + rowNdx}</td>
                 {#each {length: colEnd - colStart} as _, colNdx}
-                <td>{getCellData(colNdx, rowNdx).value}</td>
+                <td on:click={() => currentInputCell = getCellName(colNdx, rowNdx)}>
+                    <Cell cellName={getCellName(colNdx, rowNdx)}
+                          cellData={spreadsheetCells.get(getCellName(colNdx, rowNdx)) || emptyCell}
+                          showInput={currentInputCell === getCellName(colNdx, rowNdx)}
+                          on:cellUpdate={updateCellCallback} />
+                </td>
                 {/each}
             </tr>
             {/each}
